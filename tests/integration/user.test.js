@@ -1,11 +1,11 @@
-const request = require('supertest');
-const faker = require('faker');
-const httpStatus = require('http-status');
-const app = require('../../src/app');
-const setupTestDB = require('../utils/setupTestDB');
-const { User } = require('../../src/models');
-const { userOne, userTwo, admin, insertUsers } = require('../fixtures/user.fixture');
-const { userOneAccessToken, adminAccessToken } = require('../fixtures/token.fixture');
+import request from 'supertest';
+import faker from 'faker';
+import httpStatus from 'http-status';
+import app from '../../src/app.js';
+import setupTestDB from '../utils/setupTestDB.js';
+import { User } from '../../src/models/index.js';
+import { userOne, userTwo, admin, insertUsers } from '../fixtures/user.fixture.js';
+import { userOneAccessToken, adminAccessToken } from '../fixtures/token.fixture.js';
 
 setupTestDB();
 
@@ -16,8 +16,7 @@ describe('User routes', () => {
     beforeEach(() => {
       newUser = {
         name: faker.name.findName(),
-        email: faker.internet.email().toLowerCase(),
-        password: 'password1',
+        phoneNumber: '+919876543210',
         role: 'user',
       };
     });
@@ -31,19 +30,24 @@ describe('User routes', () => {
         .send(newUser)
         .expect(httpStatus.CREATED);
 
-      expect(res.body).not.toHaveProperty('password');
       expect(res.body).toEqual({
         id: expect.anything(),
         name: newUser.name,
-        email: newUser.email,
+        phoneNumber: newUser.phoneNumber,
         role: newUser.role,
-        isEmailVerified: false,
+        isPhoneVerified: false,
+        isWelcomeDone: false,
       });
 
       const dbUser = await User.findById(res.body.id);
       expect(dbUser).toBeDefined();
-      expect(dbUser.password).not.toBe(newUser.password);
-      expect(dbUser).toMatchObject({ name: newUser.name, email: newUser.email, role: newUser.role, isEmailVerified: false });
+      expect(dbUser).toMatchObject({ 
+        name: newUser.name, 
+        phoneNumber: newUser.phoneNumber, 
+        role: newUser.role, 
+        isPhoneVerified: false, 
+        isWelcomeDone: false 
+      });
     });
 
     test('should be able to create an admin as well', async () => {
@@ -76,9 +80,9 @@ describe('User routes', () => {
         .expect(httpStatus.FORBIDDEN);
     });
 
-    test('should return 400 error if email is invalid', async () => {
+    test('should return 400 error if phoneNumber is invalid', async () => {
       await insertUsers([admin]);
-      newUser.email = 'invalidEmail';
+      newUser.phoneNumber = 'invalidPhone';
 
       await request(app)
         .post('/v1/users')
@@ -87,39 +91,9 @@ describe('User routes', () => {
         .expect(httpStatus.BAD_REQUEST);
     });
 
-    test('should return 400 error if email is already used', async () => {
+    test('should return 400 error if phoneNumber is already used', async () => {
       await insertUsers([admin, userOne]);
-      newUser.email = userOne.email;
-
-      await request(app)
-        .post('/v1/users')
-        .set('Authorization', `Bearer ${adminAccessToken}`)
-        .send(newUser)
-        .expect(httpStatus.BAD_REQUEST);
-    });
-
-    test('should return 400 error if password length is less than 8 characters', async () => {
-      await insertUsers([admin]);
-      newUser.password = 'passwo1';
-
-      await request(app)
-        .post('/v1/users')
-        .set('Authorization', `Bearer ${adminAccessToken}`)
-        .send(newUser)
-        .expect(httpStatus.BAD_REQUEST);
-    });
-
-    test('should return 400 error if password does not contain both letters and numbers', async () => {
-      await insertUsers([admin]);
-      newUser.password = 'password';
-
-      await request(app)
-        .post('/v1/users')
-        .set('Authorization', `Bearer ${adminAccessToken}`)
-        .send(newUser)
-        .expect(httpStatus.BAD_REQUEST);
-
-      newUser.password = '1111111';
+      newUser.phoneNumber = userOne.phoneNumber;
 
       await request(app)
         .post('/v1/users')
@@ -161,9 +135,10 @@ describe('User routes', () => {
       expect(res.body.results[0]).toEqual({
         id: userOne._id.toHexString(),
         name: userOne.name,
-        email: userOne.email,
+        phoneNumber: userOne.phoneNumber,
         role: userOne.role,
-        isEmailVerified: userOne.isEmailVerified,
+        isPhoneVerified: userOne.isPhoneVerified,
+        isWelcomeDone: false,
       });
     });
 
@@ -360,13 +335,13 @@ describe('User routes', () => {
         .send()
         .expect(httpStatus.OK);
 
-      expect(res.body).not.toHaveProperty('password');
       expect(res.body).toEqual({
         id: userOne._id.toHexString(),
-        email: userOne.email,
+        phoneNumber: userOne.phoneNumber,
         name: userOne.name,
         role: userOne.role,
-        isEmailVerified: userOne.isEmailVerified,
+        isPhoneVerified: userOne.isPhoneVerified,
+        isWelcomeDone: false,
       });
     });
 
@@ -483,8 +458,7 @@ describe('User routes', () => {
       await insertUsers([userOne]);
       const updateBody = {
         name: faker.name.findName(),
-        email: faker.internet.email().toLowerCase(),
-        password: 'newPassword1',
+        phoneNumber: '+919876543211',
       };
 
       const res = await request(app)
@@ -493,19 +467,18 @@ describe('User routes', () => {
         .send(updateBody)
         .expect(httpStatus.OK);
 
-      expect(res.body).not.toHaveProperty('password');
       expect(res.body).toEqual({
         id: userOne._id.toHexString(),
         name: updateBody.name,
-        email: updateBody.email,
+        phoneNumber: updateBody.phoneNumber,
         role: 'user',
-        isEmailVerified: false,
+        isPhoneVerified: true, // Verification status is preserved when updating phone number
+        isWelcomeDone: false,
       });
 
       const dbUser = await User.findById(userOne._id);
       expect(dbUser).toBeDefined();
-      expect(dbUser.password).not.toBe(updateBody.password);
-      expect(dbUser).toMatchObject({ name: updateBody.name, email: updateBody.email, role: 'user' });
+      expect(dbUser).toMatchObject({ name: updateBody.name, phoneNumber: updateBody.phoneNumber, role: 'user' });
     });
 
     test('should return 401 error if access token is missing', async () => {
@@ -559,9 +532,9 @@ describe('User routes', () => {
         .expect(httpStatus.BAD_REQUEST);
     });
 
-    test('should return 400 if email is invalid', async () => {
+    test('should return 400 if phoneNumber is invalid', async () => {
       await insertUsers([userOne]);
-      const updateBody = { email: 'invalidEmail' };
+      const updateBody = { phoneNumber: 'invalidPhone' };
 
       await request(app)
         .patch(`/v1/users/${userOne._id}`)
@@ -570,9 +543,9 @@ describe('User routes', () => {
         .expect(httpStatus.BAD_REQUEST);
     });
 
-    test('should return 400 if email is already taken', async () => {
+    test('should return 400 if phoneNumber is already taken', async () => {
       await insertUsers([userOne, userTwo]);
-      const updateBody = { email: userTwo.email };
+      const updateBody = { phoneNumber: userTwo.phoneNumber };
 
       await request(app)
         .patch(`/v1/users/${userOne._id}`)
@@ -581,45 +554,15 @@ describe('User routes', () => {
         .expect(httpStatus.BAD_REQUEST);
     });
 
-    test('should not return 400 if email is my email', async () => {
+    test('should not return 400 if phoneNumber is my phoneNumber', async () => {
       await insertUsers([userOne]);
-      const updateBody = { email: userOne.email };
+      const updateBody = { phoneNumber: userOne.phoneNumber };
 
       await request(app)
         .patch(`/v1/users/${userOne._id}`)
         .set('Authorization', `Bearer ${userOneAccessToken}`)
         .send(updateBody)
         .expect(httpStatus.OK);
-    });
-
-    test('should return 400 if password length is less than 8 characters', async () => {
-      await insertUsers([userOne]);
-      const updateBody = { password: 'passwo1' };
-
-      await request(app)
-        .patch(`/v1/users/${userOne._id}`)
-        .set('Authorization', `Bearer ${userOneAccessToken}`)
-        .send(updateBody)
-        .expect(httpStatus.BAD_REQUEST);
-    });
-
-    test('should return 400 if password does not contain both letters and numbers', async () => {
-      await insertUsers([userOne]);
-      const updateBody = { password: 'password' };
-
-      await request(app)
-        .patch(`/v1/users/${userOne._id}`)
-        .set('Authorization', `Bearer ${userOneAccessToken}`)
-        .send(updateBody)
-        .expect(httpStatus.BAD_REQUEST);
-
-      updateBody.password = '11111111';
-
-      await request(app)
-        .patch(`/v1/users/${userOne._id}`)
-        .set('Authorization', `Bearer ${userOneAccessToken}`)
-        .send(updateBody)
-        .expect(httpStatus.BAD_REQUEST);
     });
   });
 });

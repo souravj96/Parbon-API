@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   testEnvironment: 'node',
   testEnvironmentOptions: {
     NODE_ENV: 'test',
@@ -7,15 +7,11 @@ module.exports = {
   coveragePathIgnorePatterns: ['node_modules', 'src/config', 'src/app.js', 'tests'],
   coverageReporters: ['text', 'lcov', 'clover', 'html'],
   extensionsToTreatAsEsm: ['.js'],
-  globals: {
-    'ts-jest': {
-      useESM: true
-    }
-  },
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1'
   },
   testMatch: [
     '**/tests/**/*.test.js'
-  ]
+  ],
+  setupFilesAfterEnv: ['<rootDir>/tests/jest.setup.js']
 };

@@ -1,10 +1,9 @@
 import Joi from 'joi';
-import { password, objectId } from './custom.validation.js';
+import { objectId, indianPhoneNumber } from './custom.validation.js';
 
 const createUser = {
   body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required().custom(password),
+    phoneNumber: Joi.string().required().custom(indianPhoneNumber),
     name: Joi.string().required(),
     role: Joi.string().required().valid('user', 'admin'),
   }),
@@ -32,8 +31,7 @@ const updateUser = {
   }),
   body: Joi.object()
     .keys({
-      email: Joi.string().email(),
-      password: Joi.string().custom(password),
+      phoneNumber: Joi.string().custom(indianPhoneNumber),
       name: Joi.string(),
     })
     .min(1),

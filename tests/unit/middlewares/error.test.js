@@ -1,10 +1,11 @@
-const mongoose = require('mongoose');
-const httpStatus = require('http-status');
-const httpMocks = require('node-mocks-http');
-const { errorConverter, errorHandler } = require('../../../src/middlewares/error');
-const ApiError = require('../../../src/utils/ApiError');
-const config = require('../../../src/config/config');
-const logger = require('../../../src/config/logger');
+import mongoose from 'mongoose';
+import httpStatus from 'http-status';
+import httpMocks from 'node-mocks-http';
+import { jest } from '@jest/globals';
+import { errorConverter, errorHandler } from '../../../src/middlewares/error.js';
+import ApiError from '../../../src/utils/ApiError.js';
+import config from '../../../src/config/config.js';
+import logger from '../../../src/config/logger.js';
 
 describe('Error middlewares', () => {
   describe('Error converter', () => {

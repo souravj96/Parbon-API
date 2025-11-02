@@ -26,10 +26,9 @@ describe('User Welcome Status routes', () => {
         expect.objectContaining({
           id: userOne._id.toHexString(),
           name: userOne.name,
-          email: userOne.email,
+          phoneNumber: userOne.phoneNumber,
           role: userOne.role,
-          isEmailVerified: userOne.isEmailVerified,
-          isPhoneVerified: false, // This field defaults to false in the model
+          isPhoneVerified: userOne.isPhoneVerified,
           isWelcomeDone: true,
         })
       );
@@ -88,7 +87,7 @@ describe('User Welcome Status routes', () => {
         expect.objectContaining({
           id: admin._id.toHexString(),
           name: admin.name,
-          email: admin.email,
+          phoneNumber: admin.phoneNumber,
           role: admin.role,
           isWelcomeDone: true,
         })

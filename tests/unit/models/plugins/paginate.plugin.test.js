@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
-const setupTestDB = require('../../../utils/setupTestDB');
-const paginate = require('../../../../src/models/plugins/paginate.plugin');
+import mongoose from 'mongoose';
+import setupTestDB from '../../../utils/setupTestDB.js';
+import paginate from '../../../../src/models/plugins/paginate.plugin.js';
 
 const projectSchema = mongoose.Schema({
   name: {
