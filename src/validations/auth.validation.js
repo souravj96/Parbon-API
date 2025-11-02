@@ -64,7 +64,7 @@ const sendMobileOtp = {
 const verifyMobileOtp = {
   body: Joi.object().keys({
     phone: Joi.string().required().custom(indianPhoneNumber),
-    otp: Joi.string().required().length(6).pattern(/^[0-9]+$/),
+    otp: Joi.string().required().length(4).pattern(/^[0-9]+$/),
     purpose: Joi.string().valid('phone_verification', 'login', 'password_reset').default('phone_verification'),
   }),
 };

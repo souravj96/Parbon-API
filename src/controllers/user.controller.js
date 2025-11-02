@@ -29,6 +29,14 @@ const updateUser = catchAsync(async (req, res) => {
   res.send(user);
 });
 
+const updateWelcomeStatus = catchAsync(async (req, res) => {
+  const userId = req.user.id; // Get user ID from JWT token
+  const { isWelcomeDone } = req.body;
+  
+  const user = await userService.updateUserById(userId, { isWelcomeDone });
+  res.send(user);
+});
+
 const deleteUser = catchAsync(async (req, res) => {
   await userService.deleteUserById(req.params.userId);
   res.status(httpStatus.NO_CONTENT).send();
@@ -39,5 +47,6 @@ export default {
   getUsers,
   getUser,
   updateUser,
+  updateWelcomeStatus,
   deleteUser,
 };

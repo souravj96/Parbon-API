@@ -45,10 +45,17 @@ const deleteUser = {
   }),
 };
 
+const updateWelcomeStatus = {
+  body: Joi.object().keys({
+    isWelcomeDone: Joi.boolean().strict().required(),
+  }),
+};
+
 export default {
   createUser,
   getUsers,
   getUser,
   updateUser,
+  updateWelcomeStatus,
   deleteUser,
 };

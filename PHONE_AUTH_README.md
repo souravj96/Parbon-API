@@ -21,7 +21,7 @@ This API now supports comprehensive phone-based authentication using Indian mobi
 ### 1. Send Mobile OTP
 **Endpoint:** `POST /v1/auth/send-mobile-otp`
 
-**Description:** Sends a 6-digit OTP to the provided Indian mobile phone number.
+**Description:** Sends a 4-digit OTP to the provided Indian mobile phone number.
 
 **Request Body:**
 ```json
@@ -63,14 +63,14 @@ This API now supports comprehensive phone-based authentication using Indian mobi
 ```json
 {
   "phone": "+919876543210",
-  "otp": "123456",
+  "otp": "1234",
   "purpose": "phone_verification"
 }
 ```
 
 **Parameters:**
 - `phone`: Indian mobile number (same format as above)
-- `otp`: 6-digit OTP received via SMS
+- `otp`: 4-digit OTP received via SMS
 - `purpose`: Either `phone_verification` or `login`
 
 **Response (Success - New User):**
@@ -333,7 +333,7 @@ Common error codes:
    # Verify OTP (replace with actual OTP)
    curl -X POST http://localhost:3000/v1/auth/verify-mobile-otp \
      -H "Content-Type: application/json" \
-     -d '{"phone":"+919876543210","otp":"123456","purpose":"phone_verification"}'
+     -d '{"phone":"+919876543210","otp":"1234","purpose":"phone_verification"}'
    ```
 
 5. **Access API Documentation:**

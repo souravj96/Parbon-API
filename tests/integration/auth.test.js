@@ -644,8 +644,8 @@ describe('Phone Authentication routes', () => {
 
   describe('POST /v1/auth/verify-mobile-otp', () => {
     const validPhoneNumber = '+919876543210';
-    const validOtp = '123456';
-    const invalidOtp = '999999';
+    const validOtp = '1234';
+    const invalidOtp = '9999';
 
     beforeEach(async () => {
       // Clean up any existing OTPs
@@ -776,7 +776,7 @@ describe('Phone Authentication routes', () => {
         .post('/v1/auth/verify-mobile-otp')
         .send({
           phone: validPhoneNumber,
-          otp: '12345', // 5 digits instead of 6
+          otp: '123', // 3 digits instead of 4
           purpose: 'phone_verification'
         })
         .expect(httpStatus.BAD_REQUEST);

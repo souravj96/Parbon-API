@@ -377,15 +377,15 @@ export default router;
  *                 description: Indian mobile phone number with or without country code
  *               otp:
  *                 type: string
- *                 pattern: '^\d{6}$'
- *                 description: 6-digit OTP received on mobile
+ *                 pattern: '^\d{4}$'
+ *                 description: 4-digit OTP received on mobile
  *               purpose:
  *                 type: string
  *                 enum: [phone_verification, login]
  *                 description: Purpose of OTP verification
  *             example:
  *               phone: "+919876543210"
- *               otp: "123456"
+ *               otp: "1234"
  *               purpose: "phone_verification"
  *     responses:
  *       "200":

@@ -12,6 +12,10 @@ router
   .get(auth('getUsers'), validate(userValidation.getUsers), userController.getUsers);
 
 router
+  .route('/welcome-status')
+  .patch(auth(), validate(userValidation.updateWelcomeStatus), userController.updateWelcomeStatus);
+
+router
   .route('/:userId')
   .get(auth('getUsers'), validate(userValidation.getUser), userController.getUser)
   .patch(auth('manageUsers'), validate(userValidation.updateUser), userController.updateUser)
@@ -249,4 +253,40 @@ export default router;
  *         $ref: '#/components/responses/Forbidden'
  *       "404":
  *         $ref: '#/components/responses/NotFound'
+ */
+
+/**
+ * @swagger
+ * /users/welcome-status:
+ *   patch:
+ *     summary: Update user welcome status
+ *     description: Update the welcome completion status for the logged-in user. The user ID is automatically extracted from the JWT token.
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - isWelcomeDone
+ *             properties:
+ *               isWelcomeDone:
+ *                 type: boolean
+ *                 description: Whether the user has completed the welcome flow
+ *             example:
+ *               isWelcomeDone: true
+ *     responses:
+ *       "200":
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       "400":
+ *         $ref: '#/components/responses/BadRequest'
+ *       "401":
+ *         $ref: '#/components/responses/Unauthorized'
  */

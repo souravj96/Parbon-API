@@ -52,7 +52,7 @@ describe('Phone Authentication routes', () => {
         .post('/v1/auth/verify-mobile-otp')
         .send({
           phone: '1234567890',
-          otp: '123456',
+          otp: '1234',
           purpose: 'phone_verification'
         });
       
@@ -64,7 +64,7 @@ describe('Phone Authentication routes', () => {
         .post('/v1/auth/verify-mobile-otp')
         .send({
           phone: validPhoneNumber,
-          otp: '12345', // 5 digits instead of 6
+          otp: '123', // 3 digits instead of 4
           purpose: 'phone_verification'
         });
       
