@@ -7,7 +7,7 @@ import auth from '../../middlewares/auth.js';
 const router = express.Router();
 
 router.post('/phone-login', validate(authValidation.phoneLogin), authController.phoneLogin);
-router.post('/logout', validate(authValidation.logout), authController.logout);
+router.post('/logout', auth(), validate(authValidation.logout), authController.logout);
 router.post('/refresh-tokens', validate(authValidation.refreshTokens), authController.refreshTokens);
 router.post('/send-mobile-otp', validate(authValidation.sendMobileOtp), authController.sendMobileOtp);
 router.post('/verify-mobile-otp', validate(authValidation.verifyMobileOtp), authController.verifyMobileOtp);
@@ -205,26 +205,15 @@ export default router;
  * /auth/logout:
  *   post:
  *     summary: Logout
- *     description: Logout user and blacklist refresh token
+ *     description: Logout current authenticated user and invalidate all refresh tokens
  *     tags: [Auth]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - refreshToken
- *             properties:
- *               refreshToken:
- *                 type: string
- *             example:
- *               refreshToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       "204":
  *         description: No content
- *       "404":
- *         $ref: '#/components/responses/NotFound'
+ *       "401":
+ *         $ref: '#/components/responses/Unauthorized'
  */
 
 /**

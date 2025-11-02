@@ -19,37 +19,42 @@ setupTestDB();
 
 describe('Auth routes', () => {
   describe('POST /v1/auth/logout', () => {
-    test('should return 204 if refresh token is valid', async () => {
+    test('should return 204 if user is authenticated', async () => {
       await insertUsers([userOne]);
       const expires = moment().add(config.jwt.refreshExpirationDays, 'days');
       const refreshToken = tokenService.generateToken(userOne._id, expires, tokenTypes.REFRESH);
       await tokenService.saveToken(refreshToken, userOne._id, expires, tokenTypes.REFRESH);
 
-      await request(app).post('/v1/auth/logout').send({ refreshToken }).expect(httpStatus.NO_CONTENT);
+      await request(app)
+        .post('/v1/auth/logout')
+        .set('Authorization', `Bearer ${userOneAccessToken}`)
+        .send()
+        .expect(httpStatus.NO_CONTENT);
 
       const dbRefreshTokenDoc = await Token.findOne({ token: refreshToken });
       expect(dbRefreshTokenDoc).toBe(null);
     });
 
-    test('should return 400 error if refresh token is missing from request body', async () => {
-      await request(app).post('/v1/auth/logout').send().expect(httpStatus.BAD_REQUEST);
+    test('should return 401 error if access token is missing', async () => {
+      await request(app).post('/v1/auth/logout').send().expect(httpStatus.UNAUTHORIZED);
     });
 
-    test('should return 404 error if refresh token is not found in the database', async () => {
-      await insertUsers([userOne]);
-      const expires = moment().add(config.jwt.refreshExpirationDays, 'days');
-      const refreshToken = tokenService.generateToken(userOne._id, expires, tokenTypes.REFRESH);
-
-      await request(app).post('/v1/auth/logout').send({ refreshToken }).expect(httpStatus.NOT_FOUND);
+    test('should return 401 error if access token is invalid', async () => {
+      await request(app)
+        .post('/v1/auth/logout')
+        .set('Authorization', 'Bearer invalidtoken')
+        .send()
+        .expect(httpStatus.UNAUTHORIZED);
     });
 
-    test('should return 404 error if refresh token is blacklisted', async () => {
+    test('should logout user even if no refresh tokens exist', async () => {
       await insertUsers([userOne]);
-      const expires = moment().add(config.jwt.refreshExpirationDays, 'days');
-      const refreshToken = tokenService.generateToken(userOne._id, expires, tokenTypes.REFRESH);
-      await tokenService.saveToken(refreshToken, userOne._id, expires, tokenTypes.REFRESH, true);
 
-      await request(app).post('/v1/auth/logout').send({ refreshToken }).expect(httpStatus.NOT_FOUND);
+      await request(app)
+        .post('/v1/auth/logout')
+        .set('Authorization', `Bearer ${userOneAccessToken}`)
+        .send()
+        .expect(httpStatus.NO_CONTENT);
     });
   });
 

@@ -7,15 +7,12 @@ import { tokenTypes } from '../config/tokens.js';
 
 /**
  * Logout
- * @param {string} refreshToken
+ * @param {string} userId
  * @returns {Promise}
  */
-const logout = async (refreshToken) => {
-  const refreshTokenDoc = await Token.findOne({ token: refreshToken, type: tokenTypes.REFRESH, blacklisted: false });
-  if (!refreshTokenDoc) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'Not found');
-  }
-  await refreshTokenDoc.remove();
+const logout = async (userId) => {
+  // Remove all refresh tokens for the user
+  await Token.deleteMany({ user: userId, type: tokenTypes.REFRESH });
 };
 
 /**
@@ -31,7 +28,7 @@ const refreshAuth = async (refreshToken) => {
       throw new Error();
     }
     // Delete the old refresh token
-    await Token.deleteOne({ _id: refreshTokenDoc._id });
+    await Token.deleteOne({ token: refreshToken, type: tokenTypes.REFRESH });
     return tokenService.generateAuthTokens(user);
   } catch (error) {
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Please authenticate');
